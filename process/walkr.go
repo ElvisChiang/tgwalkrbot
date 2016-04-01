@@ -32,11 +32,13 @@ func LoadGameData(nameFile string) (gameDataArray []GameData, ok bool) {
 
 		number, _ := strconv.Atoi(record[0])
 		planet := record[1]
-		planetFile := "resources/planets/default-" + record[4] + "-placeholder@2x.png"
+		planetFile := "resources/planets/default-" + record[2] + "-placeholder@2x.png"
+		// planetFile = record[2]
 		satelite := record[3]
 		sateliteFile := ""
+		resource := record[4]
 
-		data := GameData{number, planet, planetFile, satelite, sateliteFile}
+		data := GameData{number, planet, planetFile, satelite, sateliteFile, resource}
 		gameDataArray = append(gameDataArray, data)
 		ok = true
 	}

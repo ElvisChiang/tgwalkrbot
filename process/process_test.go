@@ -39,7 +39,14 @@ func TestCommand(t *testing.T) {
 		t.Errorf("Game data loading fail")
 		return
 	}
-
+	// for Debug dumping
+	if false {
+		for _, data := range gameData {
+			fmt.Printf("%d,%s,%s,%s,%s\n",
+				data.Number, data.Planet, data.PlanetFile,
+				data.Satelite, data.Resource)
+		}
+	}
 	fmt.Println("----------------")
 	for _, c := range pcases {
 		_, name, ok := FindPlanet(gameData, c.in)

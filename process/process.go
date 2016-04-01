@@ -7,18 +7,29 @@ import (
 	"strings"
 )
 
+// FindPlanetByResource get planet from resouce name
+func FindPlanetByResource(gameData []GameData, msg string) (planet GameData, ok bool) {
+	ok = false
+	for _, data := range gameData {
+		if data.Resource == msg {
+			planet = data
+			ok = true
+			return
+		}
+	}
+
+	return
+}
+
 // FindPlanet get planet picture from number or name
-func FindPlanet(gameData []GameData, msg string) (file string, name string, ok bool) {
-	file = ""
-	name = ""
+func FindPlanet(gameData []GameData, msg string) (planet GameData, ok bool) {
 	ok = false
 	num, _ := strconv.Atoi(msg)
 	if num > 0 {
-		fmt.Printf("finding %d planet\n", num)
+		fmt.Printf("finding for planet #%d\n", num)
 		for _, data := range gameData {
 			if data.Number == num {
-				name = data.Planet
-				file = data.PlanetFile
+				planet = data
 				ok = true
 				return
 			}
@@ -27,8 +38,7 @@ func FindPlanet(gameData []GameData, msg string) (file string, name string, ok b
 	}
 	for _, data := range gameData {
 		if data.Planet == msg {
-			name = data.Planet
-			file = data.PlanetFile
+			planet = data
 			ok = true
 			return
 		}

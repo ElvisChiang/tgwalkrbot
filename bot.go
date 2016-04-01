@@ -39,10 +39,11 @@ func main() {
 		}
 
 		for _, data := range gameData {
-			fmt.Printf("#%d: %s/%s %s/%s\n",
+			fmt.Printf("#%d: %s/%s %s/%s %s\n",
 				data.Number,
 				data.Planet, data.PlanetFile,
-				data.Satelite, data.SateliteFile)
+				data.Satelite, data.SateliteFile,
+				data.Resource)
 		}
 	}
 	startBot()
@@ -82,7 +83,31 @@ func startBot() {
 	}
 
 	// run the bot, this will block
-	boilerplate.RunBot(apiToken, updateFunc, "Echo", "Echoes messages back")
+	boilerplate.RunBot(apiToken, updateFunc, "WalkrBot", "Reply Walkr information")
+}
+
+func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet process.GameData) (ok bool) {
+	ok = false
+	// send a photo
+	file, err := os.Open(planet.PlanetFile)
+	if err != nil {
+		fmt.Printf("Error opening file: %s\n", err)
+		ok = false
+		return
+	}
+	defer file.Close()
+	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "planet.png", file)
+	captain := fmt.Sprintf("# %d: %s, 命定衛星: %s\n生產資源: %s",
+		planet.Number, planet.Planet, planet.Satelite, planet.Resource)
+	photo.SetCaption(captain)
+	outMsg, err := photo.Send()
+	if err != nil {
+		fmt.Printf("Error sending: %s\n", err)
+		return
+	}
+	fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
+	ok = true
+	return
 }
 
 // Command parse tg command line
@@ -98,34 +123,25 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 	case "/wp":
 		msg = strings.TrimPrefix(msg, "/wp")
 		msg = strings.TrimSpace(msg)
-		fileName, _, found := process.FindPlanet(gameData, msg)
+		planet, found := process.FindPlanet(gameData, msg)
 		if !found {
 			fmt.Printf("Planet %s not found\n", msg)
 			return
 		}
-		// send a photo
-		file, err := os.Open(fileName)
-		if err != nil {
-			fmt.Printf("Error opening file: %s\n", err)
-			ok = false
-			return
-		}
-		defer file.Close()
-		outMsg, err := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "planet.png", file).Send()
-		if err != nil {
-			fmt.Printf("Error sending: %s\n", err)
-			return
-		}
-		fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
-		ok = true
-		return
-	case "/ws":
-		msg = strings.TrimPrefix(msg, "/ws")
-		msg = strings.TrimSpace(msg)
+		ok = sendPlanetPic(api, chat, planet)
 	case "/wn":
 		msg = strings.TrimPrefix(msg, "/wn")
 		msg = strings.TrimSpace(msg)
 		ok = true
+	case "/wr":
+		msg = strings.TrimPrefix(msg, "/wr")
+		msg = strings.TrimSpace(msg)
+		planet, found := process.FindPlanetByResource(gameData, msg)
+		if !found {
+			fmt.Printf("Planet %s not found\n", msg)
+			return
+		}
+		ok = sendPlanetPic(api, chat, planet)
 	default:
 		fmt.Printf("Cannot process %s", msg)
 	}

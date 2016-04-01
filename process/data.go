@@ -7,6 +7,7 @@ type GameData struct {
 	PlanetFile   string
 	Satelite     string
 	SateliteFile string
+	Resource     string
 }
 
 // PlayerName Telegram player name mapping
