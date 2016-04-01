@@ -11,7 +11,7 @@ import (
 func FindPlanetByResource(gameData []GameData, msg string) (planet GameData, ok bool) {
 	ok = false
 	for _, data := range gameData {
-		if data.Resource == msg {
+		if strings.Contains(data.Resource, msg) {
 			planet = data
 			ok = true
 			return
@@ -36,8 +36,12 @@ func FindPlanet(gameData []GameData, msg string) (planet GameData, ok bool) {
 		}
 		return
 	}
+	if len(msg) == 0 {
+		return
+	}
+	fmt.Printf("finding for planet `%s`\n", msg)
 	for _, data := range gameData {
-		if data.Planet == msg {
+		if strings.Contains(data.Planet, msg) {
 			planet = data
 			ok = true
 			return

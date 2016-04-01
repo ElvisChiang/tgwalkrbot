@@ -67,12 +67,7 @@ func startBot() {
 			// we know it's a text message, so we can safely use the Message.Text pointer
 			fmt.Printf("<-%d, From:\t%s, Text: %s \n", msg.ID, msg.Chat, *msg.Text)
 
-			ok := Command(api, &msg.Chat, *msg.Text)
-
-			if !ok {
-				fmt.Printf("Cannot process input command\n")
-				return
-			}
+			Command(api, &msg.Chat, *msg.Text)
 		case tbotapi.InlineQueryUpdate:
 			fmt.Println("Ignoring received inline query: ", update.InlineQuery.Query)
 		case tbotapi.ChosenInlineResultUpdate:
@@ -99,6 +94,7 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "planet.png", file)
 	captain := fmt.Sprintf("# %d: %s, 命定衛星: %s\n生產資源: %s",
 		planet.Number, planet.Planet, planet.Satelite, planet.Resource)
+	fmt.Println(captain)
 	photo.SetCaption(captain)
 	outMsg, err := photo.Send()
 	if err != nil {
@@ -108,6 +104,16 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 	fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
 	ok = true
 	return
+}
+
+func sendText(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, text string) (ok bool) {
+	outMsg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(*chat), text).Send()
+	if err != nil {
+		fmt.Printf("Error sending: %s, err = %s\n", text, err)
+		return false
+	}
+	fmt.Printf("->%d, To:\t%s, %s\n", outMsg.Message.ID, outMsg.Message.Chat, text)
+	return true
 }
 
 // Command parse tg command line
@@ -123,9 +129,14 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 	case "/wp":
 		msg = strings.TrimPrefix(msg, "/wp")
 		msg = strings.TrimSpace(msg)
+		if len(msg) == 0 {
+			return
+		}
 		planet, found := process.FindPlanet(gameData, msg)
 		if !found {
-			fmt.Printf("Planet %s not found\n", msg)
+			text := "醒醒吧，你沒有" + msg
+			sendText(api, chat, text)
+			fmt.Println(text)
 			return
 		}
 		ok = sendPlanetPic(api, chat, planet)
@@ -136,14 +147,25 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 	case "/wr":
 		msg = strings.TrimPrefix(msg, "/wr")
 		msg = strings.TrimSpace(msg)
+		if len(msg) == 0 {
+			return
+		}
 		planet, found := process.FindPlanetByResource(gameData, msg)
 		if !found {
-			fmt.Printf("Planet %s not found\n", msg)
+			text := "沒有生產" + msg + "的星球"
+			sendText(api, chat, text)
+			fmt.Println(text)
 			return
 		}
 		ok = sendPlanetPic(api, chat, planet)
+	case "/help":
+		msg = strings.TrimPrefix(msg, "/wr")
+		msg = strings.TrimSpace(msg)
+		text := "/wp 星球編號\n/wp 星球名字(模糊搜尋第一個)\n/wr 資源\n"
+		sendText(api, chat, text)
+		ok = true
 	default:
-		fmt.Printf("Cannot process %s", msg)
+		fmt.Printf("Cannot process %s\n", msg)
 	}
 	return ok
 }

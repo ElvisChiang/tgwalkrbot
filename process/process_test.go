@@ -19,6 +19,7 @@ func TestCommand(t *testing.T) {
 		{"1", true},
 		{"隱形基地", true},
 		{"瓦肯", false},
+		{"水", true},
 	}
 	ncases := []struct {
 		in     string
@@ -49,12 +50,12 @@ func TestCommand(t *testing.T) {
 	}
 	fmt.Println("----------------")
 	for _, c := range pcases {
-		_, name, ok := FindPlanet(gameData, c.in)
+		planet, ok := FindPlanet(gameData, c.in)
 		if ok != c.result {
 			t.Errorf("cannot process " + c.in)
 			continue
 		}
-		fmt.Printf("%s -> `%s`\n", c.in, name)
+		fmt.Printf("%s -> `%s`\n", c.in, planet.Planet)
 		fmt.Println("----------------")
 	}
 	for _, c := range ncases {
