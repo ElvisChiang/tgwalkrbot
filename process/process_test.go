@@ -5,27 +5,52 @@ import (
 	"testing"
 )
 
+var idFile = "../data/id.csv"
+var planetFile = "../data/planet.csv"
+
+var playerData []PlayerName
+var gameData []GameData
+
 func TestCommand(t *testing.T) {
-	cases := []struct {
+	pcases := []struct {
+		in     string
+		result bool
+	}{
+		{"1", true},
+		{"隱形基地", true},
+		{"瓦肯", false},
+	}
+	ncases := []struct {
 		in     string
 		result bool
 	}{
 		//		{"/wn @elvisfb"},
 		{"/wn \\T'Elvis Chiang' tg name \\W'Nicole Lai' walkr name @elvisfb codename", true},
 		{"/wn \\W'Elvis' walkr name", true},
-		{"/wp 1", true},
-		{"/wp 地球", true},
-		{"/wp 瓦肯", false},
+	}
+
+	playerData, ok := LoadUserName(idFile)
+	if !ok {
+		t.Errorf("Player data loading fail")
+		return
+	}
+	gameData, ok := LoadGameData(planetFile)
+	if !ok {
+		t.Errorf("Game data loading fail")
+		return
 	}
 
 	fmt.Println("----------------")
-	for _, c := range cases {
-		output, ok := Command(c.in)
+	for _, c := range pcases {
+		_, name, ok := FindPlanet(gameData, c.in)
 		if ok != c.result {
 			t.Errorf("cannot process " + c.in)
 			continue
 		}
-		fmt.Printf("%s -> `%s`\n", c.in, output)
+		fmt.Printf("%s -> `%s`\n", c.in, name)
 		fmt.Println("----------------")
+	}
+	for _, c := range ncases {
+		processName(playerData, c.in)
 	}
 }

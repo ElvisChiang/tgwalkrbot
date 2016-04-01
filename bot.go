@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"./process"
 
@@ -12,17 +14,20 @@ import (
 // show verbose debug msg
 const DEBUG = true
 
+var idFile = "./data/id.csv"
+var planetFile = "./data/planet.csv"
+
 var playerData []process.PlayerName
 var gameData []process.GameData
 
 func main() {
 	ok := false
-	playerData, ok = loadName()
+	playerData, ok = process.LoadUserName(idFile)
 	if !ok {
 		fmt.Printf("Player data loading fail\n")
 		return
 	}
-	gameData, ok = loadGameData()
+	gameData, ok = process.LoadGameData(planetFile)
 	if !ok {
 		fmt.Printf("Game data loading fail\n")
 		return
@@ -61,20 +66,12 @@ func startBot() {
 			// we know it's a text message, so we can safely use the Message.Text pointer
 			fmt.Printf("<-%d, From:\t%s, Text: %s \n", msg.ID, msg.Chat, *msg.Text)
 
-			returnMsg, ok := process.Command(playerData, gameData, *msg.Text)
+			ok := Command(api, &msg.Chat, *msg.Text)
 
 			if !ok {
 				fmt.Printf("Cannot process input command\n")
 				return
 			}
-
-			outMsg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(msg.Chat), returnMsg).Send()
-
-			if err != nil {
-				fmt.Printf("Error sending: %s\n", err)
-				return
-			}
-			fmt.Printf("->%d, To:\t%s, Text: %s\n", outMsg.Message.ID, outMsg.Message.Chat, *outMsg.Message.Text)
 		case tbotapi.InlineQueryUpdate:
 			fmt.Println("Ignoring received inline query: ", update.InlineQuery.Query)
 		case tbotapi.ChosenInlineResultUpdate:
@@ -86,4 +83,51 @@ func startBot() {
 
 	// run the bot, this will block
 	boilerplate.RunBot(apiToken, updateFunc, "Echo", "Echoes messages back")
+}
+
+// Command parse tg command line
+func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bool) {
+	ok = false
+	result := strings.Fields(msg)
+	if len(result) == 0 {
+		return
+	}
+	command := result[0]
+
+	switch command {
+	case "/wp":
+		msg = strings.TrimPrefix(msg, "/wp")
+		msg = strings.TrimSpace(msg)
+		fileName, _, found := process.FindPlanet(gameData, msg)
+		if !found {
+			fmt.Printf("Planet %s not found\n", msg)
+			return
+		}
+		// send a photo
+		file, err := os.Open(fileName)
+		if err != nil {
+			fmt.Printf("Error opening file: %s\n", err)
+			ok = false
+			return
+		}
+		defer file.Close()
+		outMsg, err := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "planet.png", file).Send()
+		if err != nil {
+			fmt.Printf("Error sending: %s\n", err)
+			return
+		}
+		fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
+		ok = true
+		return
+	case "/ws":
+		msg = strings.TrimPrefix(msg, "/ws")
+		msg = strings.TrimSpace(msg)
+	case "/wn":
+		msg = strings.TrimPrefix(msg, "/wn")
+		msg = strings.TrimSpace(msg)
+		ok = true
+	default:
+		fmt.Printf("Cannot process %s", msg)
+	}
+	return ok
 }

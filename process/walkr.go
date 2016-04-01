@@ -1,4 +1,4 @@
-package main
+package process
 
 import (
 	"bufio"
@@ -7,17 +7,13 @@ import (
 	"log"
 	"os"
 	"strconv"
-
-	"./process"
 )
 
-const idFile = "id.csv"
-const resourceMapping = "name.csv"
+// LoadGameData from nameFile
+func LoadGameData(nameFile string) (gameDataArray []GameData, ok bool) {
+	gameDataArray = make([]GameData, 0)
 
-func loadGameData() (gameDataArray []process.GameData, ok bool) {
-	gameDataArray = make([]process.GameData, 0)
-
-	f, err := os.Open(resourceMapping)
+	f, err := os.Open(nameFile)
 	if err != nil {
 		log.Print(err)
 		return nil, false
@@ -40,14 +36,15 @@ func loadGameData() (gameDataArray []process.GameData, ok bool) {
 		satelite := record[3]
 		sateliteFile := ""
 
-		data := process.GameData{number, planet, planetFile, satelite, sateliteFile}
+		data := GameData{number, planet, planetFile, satelite, sateliteFile}
 		gameDataArray = append(gameDataArray, data)
 		ok = true
 	}
 	return
 }
 
-func loadName() (playerNameArray []process.PlayerName, ok bool) {
+// LoadUserName from idFile
+func LoadUserName(idFile string) (playerNameArray []PlayerName, ok bool) {
 	f, err := os.Open(idFile)
 	if err != nil {
 		log.Print(err)
@@ -63,7 +60,7 @@ func loadName() (playerNameArray []process.PlayerName, ok bool) {
 		if len(record) < 3 {
 			continue
 		}
-		data := process.PlayerName{record[0], record[1], record[2]}
+		data := PlayerName{record[0], record[1], record[2]}
 		playerNameArray = append(playerNameArray, data)
 		ok = true
 	}

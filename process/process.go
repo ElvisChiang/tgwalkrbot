@@ -3,39 +3,65 @@ package process
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
-// Command parse tg command line
-func Command(playerData []PlayerName, gameData []GameData, msg string) (output string, ok bool) {
-	output = ""
+// FindPlanet get planet picture from number or name
+func FindPlanet(gameData []GameData, msg string) (file string, name string, ok bool) {
+	file = ""
+	name = ""
 	ok = false
-	result := strings.Fields(msg)
-	if len(result) == 0 {
+	num, _ := strconv.Atoi(msg)
+	if num > 0 {
+		fmt.Printf("finding %d planet\n", num)
+		for _, data := range gameData {
+			if data.Number == num {
+				name = data.Planet
+				file = data.PlanetFile
+				ok = true
+				return
+			}
+		}
 		return
 	}
-	command := result[0]
-
-	switch command {
-	case "/wp":
-		output, ok = findPlanet(gameData, msg)
-	case "/ws":
-	case "/wn":
-		ok = true
-	default:
-		fmt.Printf("Cannot process %s", msg)
+	for _, data := range gameData {
+		if data.Planet == msg {
+			name = data.Planet
+			file = data.PlanetFile
+			ok = true
+			return
+		}
 	}
-	return output, ok
+	return
 }
 
-func findPlanet(gameData []GameData, msg string) (output string, ok bool) {
-	output = ""
+func findUserName(codename, tgName, walkrName string) (output string, ok bool) {
 	ok = false
-	for _, data := range gameData {
-		fmt.Printf("#%d: %s/%s %s/%s\n",
-			data.Number,
-			data.Planet, data.PlanetFile,
-			data.Satelite, data.SateliteFile)
+
+	return
+}
+
+// TODO
+func processName(playerData []PlayerName, msg string) (output string) {
+	msg = strings.TrimPrefix(msg, "/wn")
+	msg = strings.TrimSpace(msg)
+	re := regexp.MustCompile("\\\\W'.+?'")
+	for {
+		loc := re.FindStringIndex(msg)
+		if loc == nil {
+			break
+		}
+		fmt.Printf("tg name index = %d\n", re.FindStringIndex(msg))
+		tag := re.FindString(msg)
+		fmt.Printf("tg name string = %s\n", tag)
+		replace, ok := findUserName("", "", tag)
+		if !ok {
+			fmt.Printf("walkr name cannot found %s\n", tag)
+			break
+		}
+		msg = strings.Replace(msg, tag, replace, 1)
 	}
-	return output, ok
+
+	return msg
 }
