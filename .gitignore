@@ -3,4 +3,5 @@ resources/replicators/replicator-*-placeholder@2x.png
 resources/satellites/satellite-*@2x.png
 tgwalkrbot
 data/id.csv
-stickers
+stickers/
+resources/com.fourdesire.spacewalk.apk

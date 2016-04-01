@@ -55,6 +55,16 @@ func startBot() {
 		case tbotapi.MessageUpdate:
 			msg := update.Message
 			typ := msg.Type()
+			text := ""
+			if typ == tbotapi.StickerMessage {
+				sticker := update.Message.Sticker
+				fmt.Printf("Sticker id %s %d\n",
+					sticker.FileBase.ID, sticker.FileBase.Size)
+			}
+			if typ == tbotapi.TextMessage {
+				text = *msg.Text
+			}
+			fmt.Printf("<-%d, From:\t%s, Text: %s \n", msg.ID, msg.Chat, text)
 			if typ != tbotapi.TextMessage {
 				//ignore non-text messages for now
 				fmt.Println("Ignoring non-text message")
@@ -65,7 +75,7 @@ func startBot() {
 			// display the incoming message
 			// msg.Chat implements fmt.Stringer, so it'll display nicely
 			// we know it's a text message, so we can safely use the Message.Text pointer
-			fmt.Printf("<-%d, From:\t%s, Text: %s \n", msg.ID, msg.Chat, *msg.Text)
+			// fmt.Printf("<-%d, From:\t%s, Text: %s \n", msg.ID, msg.Chat, *msg.Text)
 
 			Command(api, &msg.Chat, *msg.Text)
 		case tbotapi.InlineQueryUpdate:
@@ -98,7 +108,7 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 	photo.SetCaption(captain)
 	outMsg, err := photo.Send()
 	if err != nil {
-		fmt.Printf("Error sending: %s\n", err)
+		fmt.Printf("Error sending photo: %s\n", err)
 		return
 	}
 	fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
@@ -109,10 +119,20 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 func sendText(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, text string) (ok bool) {
 	outMsg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(*chat), text).Send()
 	if err != nil {
-		fmt.Printf("Error sending: %s, err = %s\n", text, err)
+		fmt.Printf("Error sending text: %s, err = %s\n", text, err)
 		return false
 	}
 	fmt.Printf("->%d, To:\t%s, %s\n", outMsg.Message.ID, outMsg.Message.Chat, text)
+	return true
+}
+
+func sendSticker(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, id string) (ok bool) {
+	outMsg, err := api.NewOutgoingStickerResend(tbotapi.NewRecipientFromChat(*chat), id).Send()
+	if err != nil {
+		fmt.Printf("Error sending sticker: %s, err = %s\n", id, err)
+		return false
+	}
+	fmt.Printf("->%d, To:\t%s, sticker %s\n", outMsg.Message.ID, outMsg.Message.Chat, id)
 	return true
 }
 
@@ -161,7 +181,7 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 	case "/help":
 		msg = strings.TrimPrefix(msg, "/wr")
 		msg = strings.TrimSpace(msg)
-		text := "/wp 星球編號\n/wp 星球名字(模糊搜尋第一個)\n/wr 資源\n"
+		text := "/wp 星球編號\n/wp 星球名字(模糊搜尋第一個)\n/wr 資源"
 		sendText(api, chat, text)
 		ok = true
 	default:
