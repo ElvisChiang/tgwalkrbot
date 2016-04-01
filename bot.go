@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"./process"
+
 	"bitbucket.org/mrd0ll4r/tbotapi"
 	"bitbucket.org/mrd0ll4r/tbotapi/examples/boilerplate"
 )
@@ -10,13 +12,17 @@ import (
 // show verbose debug msg
 const DEBUG = true
 
+var playerData []process.PlayerName
+var gameData []process.GameData
+
 func main() {
-	playerData, ok := loadName()
+	ok := false
+	playerData, ok = loadName()
 	if !ok {
 		fmt.Printf("Player data loading fail\n")
 		return
 	}
-	gameData, ok := loadGameData()
+	gameData, ok = loadGameData()
 	if !ok {
 		fmt.Printf("Game data loading fail\n")
 		return
@@ -24,16 +30,17 @@ func main() {
 	if DEBUG {
 		for i, data := range playerData {
 			fmt.Printf("%d cn:%s tg:`%s` walkr:`%s`\n", i,
-				data.codeName, data.tgName, data.walkrName)
+				data.CodeName, data.TgName, data.WalkrName)
 		}
 
 		for _, data := range gameData {
 			fmt.Printf("#%d: %s/%s %s/%s\n",
-				data.number,
-				data.planet, data.planetFile,
-				data.satelite, data.sateliteFile)
+				data.Number,
+				data.Planet, data.PlanetFile,
+				data.Satelite, data.SateliteFile)
 		}
 	}
+	startBot()
 }
 
 func startBot() {
@@ -54,8 +61,14 @@ func startBot() {
 			// we know it's a text message, so we can safely use the Message.Text pointer
 			fmt.Printf("<-%d, From:\t%s, Text: %s \n", msg.ID, msg.Chat, *msg.Text)
 
-			// now simply echo that back
-			outMsg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(msg.Chat), *msg.Text).Send()
+			returnMsg, ok := process.Command(playerData, gameData, *msg.Text)
+
+			if !ok {
+				fmt.Printf("Cannot process input command\n")
+				return
+			}
+
+			outMsg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(msg.Chat), returnMsg).Send()
 
 			if err != nil {
 				fmt.Printf("Error sending: %s\n", err)

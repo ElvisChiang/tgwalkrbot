@@ -7,29 +7,15 @@ import (
 	"log"
 	"os"
 	"strconv"
+
+	"./process"
 )
 
 const idFile = "id.csv"
 const resourceMapping = "name.csv"
 
-// GameData Walkr game information
-type GameData struct {
-	number       int
-	planet       string
-	planetFile   string
-	satelite     string
-	sateliteFile string
-}
-
-// PlayerName Telegram player name mapping
-type PlayerName struct {
-	codeName  string
-	tgName    string
-	walkrName string
-}
-
-func loadGameData() (gameDataArray []GameData, ok bool) {
-	gameDataArray = make([]GameData, 0)
+func loadGameData() (gameDataArray []process.GameData, ok bool) {
+	gameDataArray = make([]process.GameData, 0)
 
 	f, err := os.Open(resourceMapping)
 	if err != nil {
@@ -54,14 +40,14 @@ func loadGameData() (gameDataArray []GameData, ok bool) {
 		satelite := record[3]
 		sateliteFile := ""
 
-		data := GameData{number, planet, planetFile, satelite, sateliteFile}
+		data := process.GameData{number, planet, planetFile, satelite, sateliteFile}
 		gameDataArray = append(gameDataArray, data)
 		ok = true
 	}
 	return
 }
 
-func loadName() (playerNameArray []PlayerName, ok bool) {
+func loadName() (playerNameArray []process.PlayerName, ok bool) {
 	f, err := os.Open(idFile)
 	if err != nil {
 		log.Print(err)
@@ -77,7 +63,7 @@ func loadName() (playerNameArray []PlayerName, ok bool) {
 		if len(record) < 3 {
 			continue
 		}
-		data := PlayerName{record[0], record[1], record[2]}
+		data := process.PlayerName{record[0], record[1], record[2]}
 		playerNameArray = append(playerNameArray, data)
 		ok = true
 	}
