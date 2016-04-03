@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-// FindPlanetBySatelite get planet from resouce name
-func FindPlanetBySatelite(gameData []GameData, msg string) (planet GameData, ok bool) {
+// FindPlanetBySatellite get planet from resouce name
+func FindPlanetBySatellite(gameData []GameData, msg string) (planet GameData, ok bool) {
 	ok = false
 	for _, data := range gameData {
-		if strings.Contains(data.Satelite, msg) {
+		if strings.Contains(data.Satellite, msg) {
 			planet = data
 			ok = true
 			return
@@ -56,6 +56,35 @@ func FindPlanet(gameData []GameData, msg string) (planet GameData, ok bool) {
 	fmt.Printf("finding for planet `%s`\n", msg)
 	for _, data := range gameData {
 		if strings.Contains(data.Planet, msg) {
+			planet = data
+			ok = true
+			return
+		}
+	}
+	return
+}
+
+// FindSatellite get planet picture from number or name
+func FindSatellite(gameData []GameData, msg string) (planet GameData, ok bool) {
+	ok = false
+	num, _ := strconv.Atoi(msg)
+	if num > 0 {
+		fmt.Printf("finding for satellite #%d\n", num)
+		for _, data := range gameData {
+			if data.Number == num {
+				planet = data
+				ok = true
+				return
+			}
+		}
+		return
+	}
+	if len(msg) == 0 {
+		return
+	}
+	fmt.Printf("finding for satellite `%s`\n", msg)
+	for _, data := range gameData {
+		if strings.Contains(data.Satellite, msg) {
 			planet = data
 			ok = true
 			return

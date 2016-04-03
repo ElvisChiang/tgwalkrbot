@@ -42,7 +42,7 @@ func main() {
 			fmt.Printf("#%d: %s/%s %s/%s %s\n",
 				data.Number,
 				data.Planet, data.PlanetFile,
-				data.Satelite, data.SateliteFile,
+				data.Satellite, data.SatelliteFile,
 				data.Resource)
 		}
 	}
@@ -102,8 +102,37 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 	}
 	defer file.Close()
 	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "planet.png", file)
-	captain := fmt.Sprintf("# %d: %s, 命定衛星: %s\n生產資源: %s",
-		planet.Number, planet.Planet, planet.Satelite, planet.Resource)
+	captain := fmt.Sprintf("# %d: %s\n命定衛星: %s\n生產資源: %s",
+		planet.Number, planet.Planet, planet.Satellite, planet.Resource)
+	fmt.Println(captain)
+	photo.SetCaption(captain)
+	outMsg, err := photo.Send()
+	if err != nil {
+		fmt.Printf("Error sending photo: %s\n", err)
+		return
+	}
+	fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
+	ok = true
+	return
+}
+
+func sendSatelitePic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet process.GameData) (ok bool) {
+	ok = false
+	// send a photo
+	file, err := os.Open(planet.SatelliteFile)
+	if err != nil {
+		fmt.Printf("Error opening file: %s\n", err)
+		ok = false
+		return
+	}
+	defer file.Close()
+	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "satelite.png", file)
+	captain := fmt.Sprintf("命定衛星: %s\n對應星球\n # %d: %s\n生產資源: %s",
+		planet.Satellite, planet.Number, planet.Planet, planet.Resource)
+	if planet.Planet == "-" {
+		captain = fmt.Sprintf("命定衛星: %s\n對應星球: 任意",
+			planet.Satellite)
+	}
 	fmt.Println(captain)
 	photo.SetCaption(captain)
 	outMsg, err := photo.Send()
@@ -144,14 +173,24 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 		return
 	}
 	command := result[0]
+	lowerCmd := strings.ToLower(command)
+	if lowerCmd == "/help" || lowerCmd == "/start" {
+		text := "/wp 星球編號\n/wp 星球名字(模糊搜尋第一個)\n/wr 資源\n" +
+			"\n/wp 1\n/wp 地球\n/wr 笑料"
+		sendText(api, chat, text)
+		// sendSticker(api, chat, "BQADBQADPwAD_HMCBpRNwQvxuQoDAg")
+		ok = true
+		return
+	}
 
-	switch command {
+	msg = strings.TrimPrefix(msg, command)
+	msg = strings.TrimSpace(msg)
+	if len(msg) == 0 {
+		return
+	}
+
+	switch lowerCmd {
 	case "/wp":
-		msg = strings.TrimPrefix(msg, "/wp")
-		msg = strings.TrimSpace(msg)
-		if len(msg) == 0 {
-			return
-		}
 		planet, found := process.FindPlanet(gameData, msg)
 		if !found {
 			text := "醒醒吧，你沒有" + msg
@@ -161,15 +200,8 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 		}
 		ok = sendPlanetPic(api, chat, planet)
 	case "/wn":
-		msg = strings.TrimPrefix(msg, command)
-		msg = strings.TrimSpace(msg)
 		ok = true
 	case "/wr":
-		msg = strings.TrimPrefix(msg, command)
-		msg = strings.TrimSpace(msg)
-		if len(msg) == 0 {
-			return
-		}
 		planet, found := process.FindPlanetByResource(gameData, msg)
 		if !found {
 			text := "沒有生產" + msg + "的星球"
@@ -178,13 +210,17 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 			return
 		}
 		ok = sendPlanetPic(api, chat, planet)
-	case "/ws":
-		msg = strings.TrimPrefix(msg, command)
-		msg = strings.TrimSpace(msg)
-		if len(msg) == 0 {
+	case "/wsp": // Find Satelite picture
+		satelite, found := process.FindSatellite(gameData, msg)
+		if !found {
+			text := "醒醒吧，你沒有" + msg
+			sendText(api, chat, text)
+			fmt.Println(text)
 			return
 		}
-		planet, found := process.FindPlanetBySatelite(gameData, msg)
+		ok = sendSatelitePic(api, chat, satelite)
+	case "/ws":
+		planet, found := process.FindPlanetBySatellite(gameData, msg)
 		if !found {
 			text := "沒有星球喜歡" + msg
 			sendText(api, chat, text)
@@ -192,14 +228,8 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 			return
 		}
 		ok = sendPlanetPic(api, chat, planet)
-	case "/help":
-		msg = strings.TrimPrefix(msg, "/wr")
-		msg = strings.TrimSpace(msg)
-		text := "/wp 星球編號\n/wp 星球名字(模糊搜尋第一個)\n/wr 資源"
-		sendText(api, chat, text)
-		ok = true
 	default:
-		fmt.Printf("Cannot process %s\n", msg)
+		fmt.Printf("我看不懂!! %s\n", msg)
 	}
 	return ok
 }

@@ -2,12 +2,12 @@ package process
 
 // GameData Walkr game information
 type GameData struct {
-	Number       int
-	Planet       string
-	PlanetFile   string
-	Satelite     string
-	SateliteFile string
-	Resource     string
+	Number        int
+	Planet        string
+	PlanetFile    string
+	Satellite     string
+	SatelliteFile string
+	Resource      string
 }
 
 // PlayerName Telegram player name mapping

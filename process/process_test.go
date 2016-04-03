@@ -43,9 +43,10 @@ func TestCommand(t *testing.T) {
 	// for Debug dumping
 	if false {
 		for _, data := range gameData {
-			fmt.Printf("%d,%s,%s,%s,%s\n",
+			fmt.Printf("%d,%s,%s,%s,%s,%s\n",
 				data.Number, data.Planet, data.PlanetFile,
-				data.Satelite, data.Resource)
+				data.Satellite, data.Satellite,
+				data.Resource)
 		}
 	}
 	fmt.Println("----------------")
