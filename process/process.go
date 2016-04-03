@@ -7,6 +7,20 @@ import (
 	"strings"
 )
 
+// FindPlanetBySatelite get planet from resouce name
+func FindPlanetBySatelite(gameData []GameData, msg string) (planet GameData, ok bool) {
+	ok = false
+	for _, data := range gameData {
+		if strings.Contains(data.Satelite, msg) {
+			planet = data
+			ok = true
+			return
+		}
+	}
+
+	return
+}
+
 // FindPlanetByResource get planet from resouce name
 func FindPlanetByResource(gameData []GameData, msg string) (planet GameData, ok bool) {
 	ok = false

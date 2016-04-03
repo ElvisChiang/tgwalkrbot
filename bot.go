@@ -55,10 +55,10 @@ func startBot() {
 		case tbotapi.MessageUpdate:
 			msg := update.Message
 			typ := msg.Type()
-			text := ""
+			text := "(nil)"
 			if typ == tbotapi.StickerMessage {
 				sticker := update.Message.Sticker
-				fmt.Printf("Sticker id %s %d\n",
+				fmt.Printf("\tSticker id: %s size: %d\n",
 					sticker.FileBase.ID, sticker.FileBase.Size)
 			}
 			if typ == tbotapi.TextMessage {
@@ -161,11 +161,11 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 		}
 		ok = sendPlanetPic(api, chat, planet)
 	case "/wn":
-		msg = strings.TrimPrefix(msg, "/wn")
+		msg = strings.TrimPrefix(msg, command)
 		msg = strings.TrimSpace(msg)
 		ok = true
 	case "/wr":
-		msg = strings.TrimPrefix(msg, "/wr")
+		msg = strings.TrimPrefix(msg, command)
 		msg = strings.TrimSpace(msg)
 		if len(msg) == 0 {
 			return
@@ -173,6 +173,20 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 		planet, found := process.FindPlanetByResource(gameData, msg)
 		if !found {
 			text := "沒有生產" + msg + "的星球"
+			sendText(api, chat, text)
+			fmt.Println(text)
+			return
+		}
+		ok = sendPlanetPic(api, chat, planet)
+	case "/ws":
+		msg = strings.TrimPrefix(msg, command)
+		msg = strings.TrimSpace(msg)
+		if len(msg) == 0 {
+			return
+		}
+		planet, found := process.FindPlanetBySatelite(gameData, msg)
+		if !found {
+			text := "沒有星球喜歡" + msg
 			sendText(api, chat, text)
 			fmt.Println(text)
 			return
