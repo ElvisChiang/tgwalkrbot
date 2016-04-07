@@ -1,8 +1,12 @@
 resources/planets/default-*-placeholder@2x.png
+resources/planets.orig/default-*-placeholder@2x.png
 resources/replicators/replicator-*-placeholder@2x.png
 resources/satellites/satellite-*@2x.png
+resources/satellites.orig/satellite-*@2x.png
 resources/missions/*.jpg
+resources/com.fourdesire.spacewalk.apk
+resources/bgPlanet.png
+resources/bgSatellite.png
 tgwalkrbot
 data/id.csv
 stickers/
-resources/com.fourdesire.spacewalk.apk

@@ -5,13 +5,13 @@ import (
 	"os"
 	"strings"
 
-	"./process"
+	"github.com/ElvisChiang/tgwalkrbot/process"
 
 	"bitbucket.org/mrd0ll4r/tbotapi"
 	"bitbucket.org/mrd0ll4r/tbotapi/examples/boilerplate"
 )
 
-// show verbose debug msg
+// DEBUG show verbose debug msg
 const DEBUG = true
 
 var idFile = "./data/id.csv"
@@ -22,22 +22,12 @@ var gameData []process.GameData
 
 func main() {
 	ok := false
-	playerData, ok = process.LoadUserName(idFile)
-	if !ok {
-		fmt.Printf("Player data loading fail\n")
-		return
-	}
 	gameData, ok = process.LoadGameData(planetFile)
 	if !ok {
 		fmt.Printf("Game data loading fail\n")
 		return
 	}
 	if DEBUG {
-		for i, data := range playerData {
-			fmt.Printf("%d cn:%s tg:`%s` walkr:`%s`\n", i,
-				data.CodeName, data.TgName, data.WalkrName)
-		}
-
 		for _, data := range gameData {
 			fmt.Printf("#%d: %s/%s %s/%s %s\n",
 				data.Number,
