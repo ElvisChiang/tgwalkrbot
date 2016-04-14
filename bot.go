@@ -218,6 +218,19 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 			return
 		}
 		ok = sendPlanetPic(api, chat, planet)
+	case "/wm":
+		uri, found := process.GetWidURL(msg)
+		if found {
+			text := "想要在家賺錢嗎？點下面網址吧\n" + uri
+			sendText(api, chat, text)
+			fmt.Println(text)
+			ok = true
+		} else {
+			text := "要產生 wid 網址的話，用空格或換行隔開喔！"
+			sendText(api, chat, text)
+			fmt.Println(text)
+			return
+		}
 	default:
 		fmt.Printf("我看不懂!! %s\n", msg)
 	}
