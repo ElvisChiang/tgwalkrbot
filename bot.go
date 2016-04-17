@@ -217,6 +217,13 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 			fmt.Println(text)
 			return
 		}
+		if planet.Planet == "-" {
+			text := msg + "很亂, 每個都喜歡"
+			sendText(api, chat, text)
+			fmt.Println(text)
+			ok = true
+			return
+		}
 		ok = sendPlanetPic(api, chat, planet)
 	case "/wm":
 		uri, found := process.GetWidURL(msg)
