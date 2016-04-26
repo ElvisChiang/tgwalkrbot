@@ -106,6 +106,27 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 	return
 }
 
+func sendLegend(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat) (ok bool) {
+	ok = false
+	// send a photo
+	file, err := os.Open("resources/legend.jpg")
+	if err != nil {
+		fmt.Printf("Error opening file: %s\n", err)
+		ok = false
+		return
+	}
+	defer file.Close()
+	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "legend.jpg", file)
+	outMsg, err := photo.Send()
+	if err != nil {
+		fmt.Printf("Error sending photo: %s\n", err)
+		return
+	}
+	fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
+	ok = true
+	return
+}
+
 func sendSatelitePic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet process.GameData) (ok bool) {
 	ok = false
 	// send a photo
@@ -164,9 +185,11 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 	}
 	command := result[0]
 	lowerCmd := strings.ToLower(command)
+	lowerCmd = strings.Replace(lowerCmd, "@walkrbot", "", -1)
+	fmt.Println("lowerCmd: " + lowerCmd)
 	if lowerCmd == "/help" || lowerCmd == "/start" {
 		text := "/wp 星球編號\n/wp 星球名字(模糊搜尋第一個)\n/wr 資源\n" +
-			"\n/wp 1\n/wp 地球\n/wr 笑料"
+			"\n/wp 1\n/wp 地球\n/wr 笑料\n/wl (傳說列表)"
 		sendText(api, chat, text)
 		// sendSticker(api, chat, "BQADBQADPwAD_HMCBpRNwQvxuQoDAg")
 		ok = true
@@ -175,7 +198,8 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 
 	msg = strings.TrimPrefix(msg, command)
 	msg = strings.TrimSpace(msg)
-	if len(msg) == 0 {
+	// Only /wl can be non-param
+	if len(msg) == 0 && lowerCmd != "/wl" {
 		return
 	}
 
@@ -238,6 +262,8 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 			fmt.Println(text)
 			return
 		}
+	case "/wl":
+		ok = sendLegend(api, chat)
 	default:
 		fmt.Printf("我看不懂!! %s\n", msg)
 	}
