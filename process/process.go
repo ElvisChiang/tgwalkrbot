@@ -25,6 +25,13 @@ func FindPlanetBySatellite(gameData []GameData, msg string) (planet GameData, ok
 func FindPlanetByResource(gameData []GameData, msg string) (planet GameData, ok bool) {
 	ok = false
 	for _, data := range gameData {
+		if data.Resource == msg {
+			planet = data
+			ok = true
+			return
+		}
+	}
+	for _, data := range gameData {
 		if strings.Contains(data.Resource, msg) {
 			planet = data
 			ok = true
