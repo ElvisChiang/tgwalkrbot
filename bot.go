@@ -7,8 +7,8 @@ import (
 
 	"github.com/ElvisChiang/tgwalkrbot/process"
 
-	"bitbucket.org/mrd0ll4r/tbotapi"
-	"bitbucket.org/mrd0ll4r/tbotapi/examples/boilerplate"
+    "github.com/mrd0ll4r/tbotapi"
+	"github.com/mrd0ll4r/tbotapi/examples/boilerplate"
 )
 
 // DEBUG show verbose debug msg
