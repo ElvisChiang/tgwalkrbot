@@ -7,7 +7,7 @@ import (
 
 	"github.com/ElvisChiang/tgwalkrbot/process"
 
-    "github.com/mrd0ll4r/tbotapi"
+	"github.com/mrd0ll4r/tbotapi"
 	"github.com/mrd0ll4r/tbotapi/examples/boilerplate"
 )
 
