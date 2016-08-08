@@ -92,10 +92,10 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 	}
 	defer file.Close()
 	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "planet.png", file)
-	captain := fmt.Sprintf("# %d: %s\n命定衛星: %s\n生產資源: %s",
+	caption := fmt.Sprintf("# %d: %s\n命定衛星: %s\n生產資源: %s",
 		planet.Number, planet.Planet, planet.Satellite, planet.Resource)
-	fmt.Println(captain)
-	photo.SetCaption(captain)
+	fmt.Println(caption)
+	photo.SetCaption(caption)
 	outMsg, err := photo.Send()
 	if err != nil {
 		fmt.Printf("Error sending photo: %s\n", err)
