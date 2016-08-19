@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/ElvisChiang/tgwalkrbot/process"
 
@@ -54,7 +55,7 @@ func startBot() {
 			if typ == tbotapi.TextMessage {
 				text = *msg.Text
 			}
-			fmt.Printf("<-%d, From:\t%s, Text: %s \n", msg.ID, msg.Chat, text)
+			fmt.Printf("---- %s ----\n<-%d, From:\t%s, Text: %s \n", time.Now().String(), msg.ID, msg.Chat, text)
 			if typ != tbotapi.TextMessage {
 				//ignore non-text messages for now
 				fmt.Println("Ignoring non-text message")
@@ -101,7 +102,7 @@ func sendPlanetPic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet proce
 		fmt.Printf("Error sending photo: %s\n", err)
 		return
 	}
-	fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
+	fmt.Printf("---- %s ----\n->%d, To:\t%s, (Photo)\n", time.Now().String(), outMsg.Message.ID, outMsg.Message.Chat)
 	ok = true
 	return
 }
@@ -122,7 +123,7 @@ func sendLegend(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat) (ok bool) {
 		fmt.Printf("Error sending photo: %s\n", err)
 		return
 	}
-	fmt.Printf("->%d, To:\t%s, (Photo)\n", outMsg.Message.ID, outMsg.Message.Chat)
+	fmt.Printf("---- %s ----\n->%d, To:\t%s, (Photo)\n", time.Now().String(), outMsg.Message.ID, outMsg.Message.Chat)
 	ok = true
 	return
 }
@@ -162,7 +163,7 @@ func sendText(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, text string) (ok 
 		fmt.Printf("Error sending text: %s, err = %s\n", text, err)
 		return false
 	}
-	fmt.Printf("->%d, To:\t%s, %s\n", outMsg.Message.ID, outMsg.Message.Chat, text)
+	fmt.Printf("---- %s ----\n->%d, To:\t%s, %s\n", time.Now().String(), outMsg.Message.ID, outMsg.Message.Chat, text)
 	return true
 }
 
@@ -172,7 +173,7 @@ func sendSticker(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, id string) (ok
 		fmt.Printf("Error sending sticker: %s, err = %s\n", id, err)
 		return false
 	}
-	fmt.Printf("->%d, To:\t%s, sticker %s\n", outMsg.Message.ID, outMsg.Message.Chat, id)
+	fmt.Printf("---- %s ----\n->%d, To:\t%s, sticker %s\n", time.Now().String(), outMsg.Message.ID, outMsg.Message.Chat, id)
 	return true
 }
 
