@@ -21,20 +21,6 @@ func TestCommand(t *testing.T) {
 		{"瓦肯", false},
 		{"水", true},
 	}
-	ncases := []struct {
-		in     string
-		result bool
-	}{
-		//		{"/wn @elvisfb"},
-		{"/wn \\T'Elvis Chiang' tg name \\W'Nicole Lai' walkr name @elvisfb codename", true},
-		{"/wn \\W'Elvis' walkr name", true},
-	}
-
-	playerData, ok := LoadUserName(idFile)
-	if !ok {
-		t.Errorf("Player data loading fail")
-		return
-	}
 	gameData, ok := LoadGameData(planetFile)
 	if !ok {
 		t.Errorf("Game data loading fail")
@@ -58,8 +44,5 @@ func TestCommand(t *testing.T) {
 		}
 		fmt.Printf("%s -> `%s`\n", c.in, planet.Planet)
 		fmt.Println("----------------")
-	}
-	for _, c := range ncases {
-		processName(playerData, c.in)
 	}
 }
