@@ -10,3 +10,5 @@ tgwalkrbot
 data/id.csv
 stickers/
 log.txt
+.idea/
+*.apk
