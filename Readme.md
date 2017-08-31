@@ -1,5 +1,7 @@
 # Telegram bot for walkr
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/ElvisChiang/tgwalkrbot)](https://goreportcard.com/report/github.com/ElvisChiang/tgwalkrbot)
+
 ## setup
 
 - Unpack
