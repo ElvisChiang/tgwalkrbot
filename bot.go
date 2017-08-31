@@ -128,7 +128,7 @@ func sendLegend(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat) (ok bool) {
 	return
 }
 
-func sendSatelitePic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet process.GameData) (ok bool) {
+func sendSatellitePic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet process.GameData) (ok bool) {
 	ok = false
 	// send a photo
 	file, err := os.Open(planet.SatelliteFile)
@@ -138,7 +138,7 @@ func sendSatelitePic(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, planet pro
 		return
 	}
 	defer file.Close()
-	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "satelite.png", file)
+	photo := api.NewOutgoingPhoto(tbotapi.NewRecipientFromChat(*chat), "Satellite.png", file)
 	captain := fmt.Sprintf("命定衛星: %s\n對應星球\n # %d: %s\n生產資源: %s",
 		planet.Satellite, planet.Number, planet.Planet, planet.Resource)
 	if planet.Planet == "-" {
@@ -225,15 +225,15 @@ func Command(api *tbotapi.TelegramBotAPI, chat *tbotapi.Chat, msg string) (ok bo
 			return
 		}
 		ok = sendPlanetPic(api, chat, planet)
-	case "/wsp": // Find Satelite picture
-		satelite, found := process.FindSatellite(gameData, msg)
+	case "/wsp": // Find Satellite picture
+		satellite, found := process.FindSatellite(gameData, msg)
 		if !found {
 			text := "醒醒吧，你沒有" + msg
 			sendText(api, chat, text)
 			fmt.Println(text)
 			return
 		}
-		ok = sendSatelitePic(api, chat, satelite)
+		ok = sendSatellitePic(api, chat, satellite)
 	case "/ws":
 		planet, found := process.FindPlanetBySatellite(gameData, msg)
 		if !found {

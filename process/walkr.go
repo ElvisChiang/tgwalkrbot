@@ -34,11 +34,11 @@ func LoadGameData(nameFile string) (gameDataArray []GameData, ok bool) {
 		planet := record[1]
 		planetFile := "resources/planets/default-" + record[2] + "-placeholder@2x.png"
 		// planetFile = record[2]
-		satelite := record[3]
-		sateliteFile := "resources/satellites/satellite-" + record[5] + "@2x.png"
+		satellite := record[3]
+		satelliteFile := "resources/satellites/satellite-" + record[5] + "@2x.png"
 		resource := record[4]
 
-		data := GameData{number, planet, planetFile, satelite, sateliteFile, resource}
+		data := GameData{number, planet, planetFile, satellite, satelliteFile, resource}
 		gameDataArray = append(gameDataArray, data)
 		ok = true
 	}
